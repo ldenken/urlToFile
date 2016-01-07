@@ -1,6 +1,6 @@
 # urlToFile
 
-A basic command line utility that fetches a url and saves it contents to a file. 
+A basic command line utility that fetches a url and saves it contents to a file and creates a JSON download information file. 
 
 
 ### Download:
@@ -32,7 +32,7 @@ A basic command line utility that fetches a url and saves it contents to a file.
 
 
 ### Information File:
-The *.info file contains a JSON structure containing information about the downloaded file, http headers and internal/external links if the "Content-Type" = "text/html". 
+The *.info file contains a JSON structure containing information about the downloaded file, http headers with internal/external links if the "Content-Type" = "text/html". 
 
     File 			map[string]string 	`json:"File"` 
     Request 		map[string]string 	`json:"Request"` 
