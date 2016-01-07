@@ -14,7 +14,7 @@ A JSON formated information file is created .
 ### Usage:
 
 Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
->  -u|-url      url to download
+-  -u|-url      url to download
 +  -d           root path for the download directory
   -o           overwrite existing downloaded file
   -h|-help     print help information and exit
