@@ -48,3 +48,5 @@ $ find /data/download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul
 $ cat tmp.txt |sed 's/[ |,]//g' |grep -E '\-[0-9]{8}' |sort -u >url.lst
 
 
+## License
+Book License: [GNU Lesser General Public License Version 3, 29 June 2007](http://fsf.org/)
