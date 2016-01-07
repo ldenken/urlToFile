@@ -13,6 +13,23 @@ A JSON formated information file is created .
 
 ### Usage:
 
+Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
+URL:
+  -u|-url      url to download
+DIRECTORY:
+  -d           root path for the download directory
+OVERWRITE:
+  -o           overwrite existing downloaded file
+HELP:
+  -h|-help     print help information and exit
+verbose:
+  -v           print verbose output
+EXAMPLES:
+  $ urltofile -u http://www.bbc.co.uk/news/world
+  $ urltofile -o -d /code/download -u http://www.bbc.co.uk/news/world
+
+### Example:
+
 	$ urltofile -u http://www.bbc.co.uk/news/world
 	
 	urlToFile v0.2 https://github.com/ldenken
@@ -104,13 +121,13 @@ Internal links and titles (single file)
 
 Internal links (multiple files)
 
-	$ find download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul cat |jq '.LinksInternal[][0]' |sed 's/"//g' |sort -u
+	$ find download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul \
+	cat |jq '.LinksInternal[][0]' |sed 's/"//g' |sort -u
 	...
 	http://www.bbc.co.uk/news/world/africa
 	http://www.bbc.co.uk/news/world-africa-35249860
 	http://www.bbc.co.uk/news/world/asia
 	http://www.bbc.co.uk/news/world-asia-35249620
-	http://www.bbc.co.uk/news/world-asia-35254155
 	...
 
 

@@ -21,7 +21,6 @@ import (
 	"flag"
 	"fmt"
 	"html"
-	"time"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -30,6 +29,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 )
 
@@ -61,6 +61,8 @@ HELP:
 verbose:
   -v           print verbose output
 EXAMPLES:
+  $ urltofile -u http://www.bbc.co.uk/news/world
+  $ urltofile -o -d /code/download -u http://www.bbc.co.uk/news/world
 
 `
 	USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0"
