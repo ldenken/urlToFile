@@ -32,7 +32,7 @@ import (
 
 const (
 	// VERSION is the binary version.
-	VERSION = "v0.0.2"
+	VERSION = "v0.2"
 	// BANNER is what is printed for help/info output.
 	BANNER = `            _ _____    ______ _ _
            | |_   _|   |  ___(_) |
@@ -46,17 +46,17 @@ urlToFile ` + VERSION + ` https://github.com/ldenken`
 
 	HELP = BANNER + `
 
-Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] {overwrite}
+Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
 URL:
-  -u | -url      url to download
+  -u|-url      url to download
 DIRECTORY:
-  -d             root path for the download directory
+  -d           root path for the download directory
 OVERWRITE:
-  -o             overwrite any existing downloaded file
+  -o           overwrite existing downloaded file
 HELP:
-  -h | -help     print help information and exit
-VERSION:
-  -v | -version  print version information and exit
+  -h|-help     print help information and exit
+verbose:
+  -v           print verbose output
 EXAMPLES:
 
 `
@@ -67,15 +67,15 @@ EXAMPLES:
 
 var (
 
-	COLUMN int = 21
+	column int = 10
 
-    url string = ""
+	filenameInfo string = ""
+	help bool = false
+	overwrite bool = false
+	verbose bool = false
     directoryBase string = ""
     directoryHost string = ""
-	overwrite bool = false
-	help bool = false
-	version bool = false
-	filenameInfo string = ""
+    url string = ""
 
 )
 
@@ -91,8 +91,7 @@ func init() {
 	flag.BoolVar(&help, "help", false, "print help and exit")
 	flag.BoolVar(&help, "h", false, "print help and exit (shorthand)")
 
-	flag.BoolVar(&version, "version", false, "print version and exit")
-	flag.BoolVar(&version, "v", false, "print version and exit (shorthand)")
+	flag.BoolVar(&verbose, "v", false, "print verbose output (shorthand)")
 
 	flag.Parse()
 }
@@ -110,10 +109,7 @@ func main() {
 		return
 	}
 
-	if version {
-		fmt.Println(VERSION)
-		return
-	}
+	fmt.Println("urlToFile", VERSION, "https://github.com/ldenken\n")
 
 	if url != "" {
 		reg, err := regexp.Compile("^(ftp|http|https)://(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(/|/([\\w#!:.?+=&@!-/]))?")
@@ -121,7 +117,7 @@ func main() {
 	        log.Fatal(err)
 	    }
 		if reg.MatchString(url) == true {
-			printKeyValue("url", url, COLUMN)
+			printKeyValue("URL", url, column)
 		} else {
 	        log.Fatal("url failed regexp! ", url)
 		}
@@ -131,13 +127,13 @@ func main() {
 		directoryBase = strings.TrimRight(directoryBase, "/")
 		if existsTF(directoryBase) == false {
 			createDirectory(directoryBase)
-			printKeyValue("created", directoryBase, COLUMN)
+			printKeyValue("created", directoryBase, column)
 		}
-		printKeyValue("directoryBase", directoryBase, COLUMN)
+		printKeyValue("Base", directoryBase, column)
 	}
 
 	if overwrite {
-		printKeyValue("overwrite", "true", COLUMN)
+		printKeyValue("Overwrite", "true", column)
 	}
 
 
@@ -146,21 +142,21 @@ func main() {
 
 	url_slice := []string(strings.Split(url, "://"))
 
-	protocol := url_slice[0]
-	printKeyValue("protocol", protocol, COLUMN)
+	//protocol := url_slice[0]
+	//printKeyValue("protocol", protocol, column)
 
 	urlMD5 := getMD5(url_slice[1])
-	printKeyValue("urlMD5", urlMD5, COLUMN)
+	//printKeyValue("urlMD5", urlMD5, column)
 
 	host := []string(strings.Split(url_slice[1], "/"))[0]
-	printKeyValue("host", host, COLUMN)
+	//printKeyValue("host", host, column)
 
 	directoryHost := directoryBase + "/" + host
 	if existsTF(directoryHost) == false {
 		createDirectory(directoryHost)
-		fmt.Println("created:", directoryHost)
+		printKeyValue("created", directoryHost, column)
 	}
-	printKeyValue("directoryHost", directoryHost, COLUMN)
+	printKeyValue("Host", directoryHost, column)
 
 
 
@@ -174,28 +170,68 @@ func main() {
 	    fmt.Println(filenameInfo, "Exists!\n")
         os.Exit(1)
     }
-	printKeyValue("filenameInfo", filenameInfo, COLUMN)
+	printKeyValue("Info", filenameInfo, column)
 
 
 
 	// ----- getUrl ------------------------------------------------------------
 	//fmt.Println(title_string("get url"))
-	Response, Header, Request, body := getUrl(url)
+	Request, Header, Response, body := getUrl(url)
 
-	fmt.Println("\nResponse type:", reflect.TypeOf(Response).Kind(), "len:", len(Response))
-    for key, value := range Response {
-		printKeyValue(key, value, COLUMN)
+	if verbose {
+		column = 21
+
+		fmt.Println("\nRequest type:", reflect.TypeOf(Request).Kind(), "len:", len(Request))
+	    for key, value := range Request {
+			printKeyValue(key, value, column)
+	    }
+
+		fmt.Println("\nHeader type:", reflect.TypeOf(Header).Kind(), "len:", len(Header))
+	    for key, value := range Header {
+			printKeyValue(key, value, column)
+	    }
+
+		fmt.Println("\nResponse type:", reflect.TypeOf(Response).Kind(), "len:", len(Response))
+	    for key, value := range Response {
+			printKeyValue(key, value, column)
+	    }
+		fmt.Println("\nbody type:", reflect.TypeOf(body).Kind(), "len:", len(body))
+		//fmt.Println("\n")
+
+		column = 14
+	}
+
+
+
+	// ----- write body to file ------------------------------------------------
+	x := strings.Split(Header["Content-Type"], ";")
+	y := strings.SplitAfterN(x[0], "/", -1)
+	var contentType string = y[len(y)-1]
+	//printKeyValue("contentType", contentType, column)
+
+	var filename string = directoryHost + "/" + urlMD5 + "." + contentType
+	printKeyValue("file", filename, column)
+
+	var fileType string = ""
+	if contentType == "html" {
+		fileType = "string"
+	}
+	if contentType == "pdf" {
+		fileType = "byte"
+	}
+
+    switch fileType {
+    	case "string":
+			wirteFile(filename, []byte(string(body)))
+    	case "byte":
+			wirteFile(filename, body)
+		default:
+			fmt.Println("unknown fileType ->", fileType)
     }
-	fmt.Println("\nHeader type:", reflect.TypeOf(Header).Kind(), "len:", len(Header))
-    for key, value := range Header {
-		printKeyValue(key, value, COLUMN)
-    }
-	fmt.Println("\nRequest type:", reflect.TypeOf(Request).Kind(), "len:", len(Request))
-    for key, value := range Header {
-		printKeyValue(key, value, COLUMN)
-    }
-	fmt.Println("\nbody type:", reflect.TypeOf(body).Kind(), "len:", len(body))
-	fmt.Println("\n")
+
+
+
+
 
 
 
@@ -255,13 +291,8 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 	//fmt.Println("\ngetUrl ->", "url:", url)
 
 	client := &http.Client {}
-	fmt.Println("client type:", reflect.TypeOf(client).Kind(), "->\n", client)
-	fmt.Println("client.Transport type:", reflect.TypeOf(client.transport).Kind())
-
-
-
-
-
+	//fmt.Println("client type:", reflect.TypeOf(client).Kind(), "->\n", client)
+	//fmt.Println("client.Transport type:", reflect.TypeOf(client.transport).Kind())
 
 	req, err := http.NewRequest("GET", url, nil)
     if err != nil {
@@ -270,7 +301,7 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 	//fmt.Println("*req type:", reflect.TypeOf(*req).Kind(), "->\n", *req)
 
 	req.Header.Add("User-Agent", USERAGENT)
-	fmt.Println("\nreq type:", reflect.TypeOf(req).Kind(), "->\n", req)
+	//fmt.Println("\nreq type:", reflect.TypeOf(req).Kind(), "->\n", req)
 
 	resp, err := client.Do(req)
     if err != nil {
@@ -286,27 +317,27 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 	
 	// fmt.Println("resp.Status type:", reflect.TypeOf(resp.Status).Kind(), resp.Status) 
 	// resp.Status type: string 200 OK
-	Response["status"] = resp.Status
+	Response["Status"] = resp.Status
 
 	// fmt.Println("resp.StatusCode type:", reflect.TypeOf(resp.StatusCode).Kind(), resp.StatusCode) 
 	// resp.StatusCode type: int 200
-	Response["statuscode"] = strconv.Itoa(resp.StatusCode)
+	Response["StatusCode"] = strconv.Itoa(resp.StatusCode)
 
 	// fmt.Println("resp.Proto type:", reflect.TypeOf(resp.Proto).Kind(), resp.Proto) 
 	// resp.Proto type: string HTTP/1.1
-	Response["proto"] = resp.Proto
+	Response["Proto"] = resp.Proto
 
 	// fmt.Println("resp.ProtoMajor type:", reflect.TypeOf(resp.ProtoMajor).Kind(), resp.ProtoMajor) 
 	// resp.ProtoMajor type: int 1
-	Response["protomajor"] = strconv.Itoa(resp.ProtoMajor)
+	Response["ProtoMajor"] = strconv.Itoa(resp.ProtoMajor)
 
 	// fmt.Println("resp.ProtoMinor type:", reflect.TypeOf(resp.ProtoMinor).Kind(), resp.ProtoMinor) 
 	// resp.ProtoMinor type: int 1 
-	Response["protominor"] = strconv.Itoa(resp.ProtoMinor)
+	Response["ProtoMinor"] = strconv.Itoa(resp.ProtoMinor)
 
-	// fmt.Println("resp.ContentLength type:", reflect.TypeOf(resp.ContentLength).Kind(), resp.ContentLength) 
+	//fmt.Println("resp.ContentLength type:", reflect.TypeOf(resp.ContentLength).Kind(), resp.ContentLength) 
 	// resp.ContentLength type: int64 12150
-	Response["contentlength"] = strconv.FormatInt(resp.ContentLength, 10)
+	Response["ContentLength"] = strconv.FormatInt(resp.ContentLength, 10)
 
 	// fmt.Println("resp.TransferEncoding type:", reflect.TypeOf(resp.TransferEncoding).Kind(), resp.TransferEncoding) 
 	// resp.TransferEncoding type: slice []
@@ -314,7 +345,7 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 
 	// fmt.Println("resp.Close type:", reflect.TypeOf(resp.Close).Kind(), resp.Close) 
 	// resp.Close type: bool false
-	Response["close"] = strconv.FormatBool(resp.Close)
+	//Response["close"] = strconv.FormatBool(resp.Close)
 
 	// fmt.Println("resp.Trailer type:", reflect.TypeOf(resp.Trailer).Kind(), resp.Trailer) 
 	// resp.Trailer type: map map[]
@@ -355,27 +386,26 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 
 	// fmt.Println("resp.Request.Method type:", reflect.TypeOf(resp.Request.Method).Kind(), resp.Request.Method)
 	// resp.Request.Method type: string GET
-	Request["method"] = resp.Request.Method
+	Request["Method"] = resp.Request.Method
 
 	// fmt.Println("*resp.Request.URL type:", reflect.TypeOf(*resp.Request.URL).Kind(), *resp.Request.URL)
 	// *resp.Request.URL type: struct {http  <nil> httpbin.org /   }
-	Request["url"] = resp.Request.URL.Scheme + "://" + resp.Request.URL.Host + resp.Request.URL.Path
+	Request["URL"] = resp.Request.URL.Scheme + "://" + resp.Request.URL.Host + resp.Request.URL.Path
 
 	// fmt.Println("resp.Request.Proto type:", reflect.TypeOf(resp.Request.Proto).Kind(), resp.Request.Proto)
 	// resp.Request.Proto type: string HTTP/1.1
-	Request["proto"] = resp.Request.Proto
+	Request["Proto"] = resp.Request.Proto
 
 	// fmt.Println("resp.Request.ProtoMajor type:", reflect.TypeOf(resp.Request.ProtoMajor).Kind(), resp.Request.ProtoMajor)
 	// resp.Request.ProtoMajor type: int 1
-	Request["protomajor"] = strconv.Itoa(resp.Request.ProtoMajor)
+	Request["ProtoMajor"] = strconv.Itoa(resp.Request.ProtoMajor)
 
 	// fmt.Println("resp.Request.ProtoMinor type:", reflect.TypeOf(resp.Request.ProtoMinor).Kind(), resp.Request.ProtoMinor)
 	// resp.Request.ProtoMinor type: int 1
-	Request["protominor"] = strconv.Itoa(resp.Request.ProtoMinor)
+	Request["ProtoMinor"] = strconv.Itoa(resp.Request.ProtoMinor)
 
 	// fmt.Println("resp.Request.Header type:", reflect.TypeOf(resp.Request.Header).Kind(), resp.Request.Header)
 	for k, v := range resp.Request.Header {
-		//k := strings.ToLower(k)
 		v := sliceToString(v)
 		v = stripString(v)
 		Request[k] = v
@@ -385,18 +415,18 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 
 	// fmt.Println("resp.Request.ContentLength type:", reflect.TypeOf(resp.Request.ContentLength).Kind(), resp.Request.ContentLength)
 	// resp.Request.ContentLength type: int64 0
-	Request["contentlength"] = strconv.FormatInt(resp.Request.ContentLength, 10)
+	Request["ContentLength"] = strconv.FormatInt(resp.Request.ContentLength, 10)
 
 	// fmt.Println("resp.Request.TransferEncoding type:", reflect.TypeOf(resp.Request.TransferEncoding).Kind(), resp.Request.TransferEncoding)
 	// resp.Request.TransferEncoding type: slice []
 
 	// fmt.Println("resp.Request.Close type:", reflect.TypeOf(resp.Request.Close).Kind(), resp.Request.Close)
 	// resp.Request.Close type: bool false
-	Request["close"] = strconv.FormatBool(resp.Request.Close)
+	Request["Close"] = strconv.FormatBool(resp.Request.Close)
 
 	// fmt.Println("resp.Request.Host type:", reflect.TypeOf(resp.Request.Host).Kind(), resp.Request.Host)
 	// resp.Request.Host type: string httpbin.org
-	Request["host"] = resp.Request.Host
+	Request["Host"] = resp.Request.Host
 
 	// fmt.Println("resp.Request.Form type:", 			reflect.TypeOf(resp.Request.Form).Kind(), 			resp.Request.Form)
 	// resp.Request.Form type: map map[]
@@ -408,11 +438,11 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 
 	// fmt.Println("resp.Request.RemoteAddr type:", reflect.TypeOf(resp.Request.RemoteAddr).Kind(), resp.Request.RemoteAddr)
 	// resp.Request.RemoteAddr type: string
-	Request["remoteaddr"] = resp.Request.RemoteAddr
+	Request["RemoteAddr"] = resp.Request.RemoteAddr
 
 	// fmt.Println("resp.Request.RequestURI type:", reflect.TypeOf(resp.Request.RequestURI).Kind(), resp.Request.RequestURI)
 	// resp.Request.RequestURI type: string
-	Request["requesturi"] = resp.Request.RequestURI
+	Request["RequestURI"] = resp.Request.RequestURI
 
 	//fmt.Println("*resp.Request.TLS type:", reflect.TypeOf(*resp.Request.TLS).Kind(), *resp.Request.TLS)
 	// fmt.Println("resp.Request.Cancel type:", 		reflect.TypeOf(resp.Request.Cancel).Kind(), 		resp.Request.Cancel)
@@ -432,7 +462,7 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 	}
 	//fmt.Println("\nbody type:", reflect.TypeOf(body).Kind(), "len:", len(body))
 
-	return Response, Header, Request, body
+	return Request, Header, Response, body
 }
 
 func sliceToString(s []string) string {
@@ -448,6 +478,21 @@ func stripString(s string) string {
 	s = strings.Trim(s, "\t")
 	s = strings.Trim(s, " ")
 	return s
+}
+
+
+func wirteFile(filename string, content []byte) {
+	//fmt.Println("file:", filename)
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	_, err = f.Write(content)
+	if err != nil {
+		log.Fatal(err)
+	}
+	f.Sync()	
 }
 
 
