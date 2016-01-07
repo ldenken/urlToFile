@@ -2,9 +2,10 @@
 
 A basic command line utility that fetches a url and saves the contents to a file.
 
+To download and install this package run:
 
+go get github.com/dyatlov/go-opengraph/opengraph
 
-		text = regexp.MustCompile(" {2,}").ReplaceAllString(text, " ")
 
 
 $ go install problemchild.local/gogs/urltofile; urltofile -d /data/download/ -o -v -url http://www.bbc.co.uk/news/world
@@ -17,6 +18,8 @@ $ cat /data/download/www.eff.org/7f0f99e5c048890d2f6bd22adb63d155.info | jq '.Li
 
 
 $ clear; go install problemchild.local/gogs/urltofile; 
+
+### Examples:
 
 $ urltofile -d /data/download -u http://www.bbc.co.uk/news/world
 
