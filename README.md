@@ -9,19 +9,40 @@ go get github.com/dyatlov/go-opengraph/opengraph
 
 ### Usage:
 
-	$ urltofile -d /data/download -u http://www.bbc.co.uk/news/world
-
+	$ urltofile -u http://www.bbc.co.uk/news/world
+	
 	urlToFile v0.2 https://github.com/ldenken
 
 	    URL : http://www.bbc.co.uk/news/world
-	   Info : /data/download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
-	   file : /data/download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html
+	created : download
+	created : download/www.bbc.co.uk
+	   Info : download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+	   file : download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html
+
+
+## ./jq
+[jq](http://stedolan.github.com/jq) is a lightweight and flexible command-line JSON processor.
 
 
 
-http://stedolan.github.com/jq
 
-$ cat /data/download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info | jq '.LinksInternal[][0]'
+	$ cat download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info | jq '.LinksInternal[]'
+
+	...
+	[
+	  "http://www.bbc.co.uk/news/",
+	  "News"
+	]
+	[
+	  "http://www.bbc.co.uk/sport/",
+	  "Sport"
+	]
+	...
+
+
+
+
+
 $ cat /data/download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info | jq '.LinksExternal[][0]'
 
 
