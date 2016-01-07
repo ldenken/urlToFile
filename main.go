@@ -17,8 +17,11 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"html"
+	"time"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -61,21 +64,22 @@ EXAMPLES:
 
 `
 	USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0"
-	//USERAGENT = "Golang Spider Bot " + VERSION
+	//USERAGENT = "Golang Bot " + VERSION
 
 )
 
 var (
 
-	column int = 10
+	column int = 8
 
-	filenameInfo string = ""
 	help bool = false
 	overwrite bool = false
 	verbose bool = false
-    directoryBase string = ""
-    directoryHost string = ""
+    directory string = ""
+
     url string = ""
+    text string = ""
+	filename string = ""
 
 )
 
@@ -85,7 +89,7 @@ func init() {
     flag.StringVar(&url, "url", "", "a url to download")
     flag.StringVar(&url, "u", "", "a url to download (shorthand)")
 
-    flag.StringVar(&directoryBase, "d", "", "root path for the download directory")
+    flag.StringVar(&directory, "d", "download", "root path for the download directory")
 	flag.BoolVar(&overwrite, "o", false, "overwrite any existing downloaded file")
 
 	flag.BoolVar(&help, "help", false, "print help and exit")
@@ -109,7 +113,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("urlToFile", VERSION, "https://github.com/ldenken\n")
+	fmt.Println("\nurlToFile", VERSION, "https://github.com/ldenken\n")
 
 	if url != "" {
 		reg, err := regexp.Compile("^(ftp|http|https)://(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(/|/([\\w#!:.?+=&@!-/]))?")
@@ -123,26 +127,25 @@ func main() {
 		}
 	}
 
-	if directoryBase != "" {
-		directoryBase = strings.TrimRight(directoryBase, "/")
-		if existsTF(directoryBase) == false {
-			createDirectory(directoryBase)
-			printKeyValue("created", directoryBase, column)
+	if directory != "" {
+		directory = strings.TrimRight(directory, "/")
+		if existsTF(directory) == false {
+			createDirectory(directory)
+			printKeyValue("created", directory, column)
 		}
-		printKeyValue("Base", directoryBase, column)
+		//printKeyValue("Base", directory, column)
 	}
 
-	if overwrite {
-		printKeyValue("Overwrite", "true", column)
-	}
+	//if overwrite {
+	//	printKeyValue("Write", "true", column)
+	//}
 
 
 
 	// ----- parse valid url into its component parts --------------------------
-
 	url_slice := []string(strings.Split(url, "://"))
 
-	//protocol := url_slice[0]
+	protocol := url_slice[0]
 	//printKeyValue("protocol", protocol, column)
 
 	urlMD5 := getMD5(url_slice[1])
@@ -151,31 +154,31 @@ func main() {
 	host := []string(strings.Split(url_slice[1], "/"))[0]
 	//printKeyValue("host", host, column)
 
-	directoryHost := directoryBase + "/" + host
-	if existsTF(directoryHost) == false {
-		createDirectory(directoryHost)
-		printKeyValue("created", directoryHost, column)
+	//directoryHost := directory + "/" + host
+	if existsTF(directory + "/" + host) == false {
+		createDirectory(directory + "/" + host)
+		printKeyValue("created", directory + "/" + host, column)
 	}
-	printKeyValue("Host", directoryHost, column)
+	//printKeyValue("Host", directoryHost, column)
 
 
 
 	// ----- check if the information file exists ------------------------------
-	filenameInfo = directoryBase + "/" + host + "/" + urlMD5 + ".info"
-    test, err := existsTFE(filenameInfo)
+	filename = directory + "/" + host + "/" + urlMD5 + ".info"
+    test, err := existsTFE(filename)
     if err != nil {
         log.Fatal(err)
     }
     if test == true && overwrite == false {
-	    fmt.Println(filenameInfo, "Exists!\n")
+		printKeyValue("Exists", filename, column)
+		fmt.Println("")
         os.Exit(1)
     }
-	printKeyValue("Info", filenameInfo, column)
+	printKeyValue("Info", filename, column)
 
 
 
 	// ----- getUrl ------------------------------------------------------------
-	//fmt.Println(title_string("get url"))
 	Request, Header, Response, body := getUrl(url)
 
 	if verbose {
@@ -196,8 +199,8 @@ func main() {
 			printKeyValue(key, value, column)
 	    }
 		fmt.Println("\nbody type:", reflect.TypeOf(body).Kind(), "len:", len(body))
-		//fmt.Println("\n")
 
+		fmt.Println("")
 		column = 14
 	}
 
@@ -209,7 +212,9 @@ func main() {
 	var contentType string = y[len(y)-1]
 	//printKeyValue("contentType", contentType, column)
 
-	var filename string = directoryHost + "/" + urlMD5 + "." + contentType
+	//var filename string = directoryHost + "/" + urlMD5 + "." + contentType
+	filename = directory + "/" + host + "/" + urlMD5 + "." + contentType
+
 	printKeyValue("file", filename, column)
 
 	var fileType string = ""
@@ -231,11 +236,133 @@ func main() {
 
 
 
+	// ----- extract links if contentType == "html" -----------------------
+	LinksInternal := [][]string{}
+	LinksExternal := [][]string{}
+
+	if len(body) > 0 && contentType == "html" {
+
+		text = string(body)
+		text = html.UnescapeString(text)
+
+		text = regexp.MustCompile("\r").ReplaceAllString(text, " ")
+		text = regexp.MustCompile("\n").ReplaceAllString(text, " ")
+		text = regexp.MustCompile("\t").ReplaceAllString(text, " ")
+		text = regexp.MustCompile(" {2,}").ReplaceAllString(text, " ")
+
+		text = regexp.MustCompile("(?i)<div").ReplaceAllString(text, "\n<div")
+
+		// remove <span.*, .*>
+		text = regexp.MustCompile("(?i)<span").ReplaceAllString(text, "\n<span")
+		text = regexp.MustCompile("(?i)>").ReplaceAllString(text, ">\n")
+		text = regexp.MustCompile("(?i)<span.*").ReplaceAllString(text, "")
+		text = regexp.MustCompile("\n").ReplaceAllString(text, "")
+
+		// remove <h[1-6].*, .*>
+		text = regexp.MustCompile("(?i)<h[1-6]").ReplaceAllString(text, "\n<h1")
+		text = regexp.MustCompile("(?i)>").ReplaceAllString(text, ">\n")
+		text = regexp.MustCompile("(?i)<h1.*").ReplaceAllString(text, "")
+		text = regexp.MustCompile("\n").ReplaceAllString(text, "")
+
+		// remove image links from <a href regexp Response
+		text = regexp.MustCompile("(?i)<img").ReplaceAllString(text, "\n<img")
+		text = regexp.MustCompile("(?i)<svg").ReplaceAllString(text, "\n<svg")
+
+		// remove protocol links
+		text = regexp.MustCompile("(?i)<a href=\"mailto:").ReplaceAllString(text, "\n*****")
+		text = regexp.MustCompile("(?i)<a href=\"whatsapp:").ReplaceAllString(text, "\n*****")
+
+		text = regexp.MustCompile(" {2,}").ReplaceAllString(text, " ")
+
+		text = regexp.MustCompile("(?i)<a href=").ReplaceAllString(text, "\n<a href=")
+		text = regexp.MustCompile("(?i)</a>").ReplaceAllString(text, "</a>\n")
+
+		//fmt.Println("\ntext type:", reflect.TypeOf(text).Kind(), "len:", len(text), "\n", text)
+
+		href := regexp.MustCompile("(?i)<a href=.*</a>").FindAllString(text, -1)
+		//fmt.Println("\nhref type:", reflect.TypeOf(href).Kind(), "len:", len(href), "\n", href)
+		// href type: slice len: 62
+
+		for _, v := range href { 
+			v = strings.Trim(v, " \t\n\r")
+			tmpslice := strings.SplitAfterN(v, ">", 2)
+			tmpslice[0] = regexp.MustCompile("(?i)<a href=(\"|')").ReplaceAllString(tmpslice[0], "")
+			tmpslice[0] = regexp.MustCompile("(\"|').*").ReplaceAllString(tmpslice[0], "")
+			tmpslice[0] = strings.Trim(tmpslice[0], " \t\n\r")
+			tmpslice[1] = regexp.MustCompile("(?i)</a>").ReplaceAllString(tmpslice[1], "")
+			tmpslice[1] = regexp.MustCompile("(?i)<[/a-z0-9]{1,}>").ReplaceAllString(tmpslice[1], "")
+			tmpslice[1] = strings.Trim(tmpslice[1], " \t\n\r")
+			if regexp.MustCompile("^/").MatchString(tmpslice[0]) == true {
+				tmpslice[0] = protocol + "://" + host + tmpslice[0]
+			}
+			if regexp.MustCompile(host).MatchString(tmpslice[0]) == true {
+				link := []string{}
+				link = append(link, tmpslice[0])
+				link = append(link, tmpslice[1])
+				LinksInternal = append(LinksInternal, link)
+			} else {
+				if regexp.MustCompile("^http").MatchString(tmpslice[0]) == true {
+					link := []string{}
+					link = append(link, tmpslice[0])
+					link = append(link, tmpslice[1])
+					LinksExternal = append(LinksExternal, link)
+				}
+			}
+		}
+		if verbose {
+			fmt.Println("\nLinksInternal type:", reflect.TypeOf(LinksInternal).Kind(), "len:", len(LinksInternal))
+			for i, v := range LinksInternal { 
+				fmt.Println(i, v[0], v[1])
+			}
+
+			fmt.Println("\nLinksExternal type:", reflect.TypeOf(LinksExternal).Kind(), "len:", len(LinksExternal))
+			for i, v := range LinksExternal { 
+				fmt.Println(i, v[0], v[1])
+			}
+		}
+	}
 
 
 
+	// ----- build File information map ------------------------------------
+	File := make(map[string]string)
+	File["filename"] = filename
+	File["timestamp"] = time.Now().UTC().Format(time.RFC3339)
+	File["url"] = url
 
-	fmt.Println("\n\nurl:", reflect.TypeOf(url).Kind(), "len:", len(url), "->\n", url)
+
+	// ----- build json Information struct ---------------------------------
+	type Information struct {
+	    File 			map[string]string 	`json:"File"` 
+	    Request 		map[string]string 	`json:"Request"` 
+	    Header 			map[string]string 	`json:"Header"`
+	    Response 		map[string]string 	`json:"Response"` 
+	    LinksInternal	[][]string 			`json:"LinksInternal"`
+	    LinksExternal	[][]string 			`json:"LinksExternal"`
+	}
+
+	i := Information{}
+
+	i.File 				= File
+	i.Request 			= Request
+	i.Response 			= Response
+	i.Header 			= Header
+	i.LinksInternal 	= LinksInternal
+	i.LinksExternal 	= LinksExternal
+
+	infoJson, err := json.Marshal(i)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//fmt.Println("\ninfoJson type:", reflect.TypeOf(infoJson).Kind(), "len:", len(infoJson))
+
+
+	// ----- write infoJson to file ---------------------------------------
+	filename = directory + "/" + host + "/" + urlMD5 + ".info"
+	wirteFile(filename, infoJson)
+
+
+	fmt.Println("")
 }
 
 
@@ -482,7 +609,7 @@ func stripString(s string) string {
 
 
 func wirteFile(filename string, content []byte) {
-	//fmt.Println("file:", filename)
+	//fmt.Println("filename:", filename)
 	f, err := os.Create(filename)
 	if err != nil {
 		log.Fatal(err)
