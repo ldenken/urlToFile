@@ -21,7 +21,7 @@ go get github.com/dyatlov/go-opengraph/opengraph
 
 
 ### Information File:
-The *.info file contains file, http headers with internal and external links if the "Content-Type" = "text/html". JSON structure:
+The *.info file contains a JSON structure containing information about the downloaded file, http headers and internal/external links if the "Content-Type" = "text/html". 
 
     File 			map[string]string 	`json:"File"` 
     Request 		map[string]string 	`json:"Request"` 
@@ -31,35 +31,49 @@ The *.info file contains file, http headers with internal and external links if 
     LinksExternal	[][]string 			`json:"LinksExternal"`
 
 
+### [./jq](http://stedolan.github.com/jq)
+jq is a lightweight and flexible command-line JSON processor and can be used to extract information from the *.info file(s).
 
-$ cat /data/download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info | jq '.| {Header} '
-{
-  "Header": {
-    "X-Pal-Host": "pal014.back.live.cwwtf.local:80",
-    "X-News-Data-Centre": "cwwtf",
-    "X-News-Cache-Id": "85512",
-    "X-Lb-Nocache": "true",
-    "X-Cache-Hits": "30",
-    "X-Cache-Age": "19",
-    "X-Cache-Action": "HIT",
-    "Cache-Control": "private, max-age=30, stale-while-revalidate",
-    "Connection": "keep-alive",
-    "Content-Language": "en-GB",
-    "Content-Type": "text/html; charset=utf-8",
-    "Date": "Thu, 07 Jan 2016 16:50:13 GMT",
-    "Server": "Apache",
-    "Set-Cookie": "BBC-UID=b5c6983e5957a4556e6fea71f1c7a8beebf9e488a474a1deaa7174245e85e8e00Mozilla/5.0%20(X11%3b%20Ubuntu%3b%20Linux%20x86_64%3b%20rv:43.0)%20Gecko/20100101%20Firefox/43.0; expires=Mon, 06-Jan-20 16:50:13 GMT; path=/; domain=.bbc.co.uk",
-    "Vary": "X-CDN,X-BBC-Edge-Cache,Accept-Encoding"
-  }
-}
+	$ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+	{
+	  "File": {
+	    "url": "http://www.bbc.co.uk/news/world",
+	    "timestamp": "2016-01-07T16:54:00Z",
+	    "filename": "download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html"
+	  }
+	}
 
+	$ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info 
+	{
+	  "Request": {
+	  	...
+	    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0",
+	    "URL": "http://www.bbc.co.uk/news/world",
+	    "RequestURI": "",
+	    ...
+	  }
+	}
 
+	$ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info{
+	  "Header": {
+	  	...
+	    "Connection": "keep-alive",
+	    "Content-Language": "en-GB",
+	    "Content-Type": "text/html; charset=utf-8",
+	    "Date": "Thu, 07 Jan 2016 16:54:00 GMT",
+	    ...
+	  }
+	}
 
-
-### ./jq
-[jq](http://stedolan.github.com/jq) is a lightweight and flexible command-line JSON processor.
-
-We can use jq to extract all of the internal links.
+	$ jq '.| {Response}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+	{
+	  "Response": {
+	  	...
+	    "StatusCode": "200",
+	    "Status": "200 OK",
+	    ...
+	  }
+	}
 
 	$ jq '.LinksInternal[]' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 	...
