@@ -42,8 +42,8 @@ The *.info file contains a JSON structure containing information about the downl
     LinksExternal	[][]string 			`json:"LinksExternal"`
 
 
-### [./jq](http://stedolan.github.com/jq)
-jq is a lightweight and flexible command-line JSON processor and can be used to extract information from the *.info file(s).
+### ./jq
+[jq](http://stedolan.github.com/jq) is a lightweight and flexible command-line JSON processor and can be used to extract information from the *.info file(s).
 
 File information
 
