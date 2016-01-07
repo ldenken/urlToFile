@@ -14,19 +14,12 @@ A JSON formated information file is created .
 ### Usage:
 
 Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
-URL:
   -u|-url      url to download
-DIRECTORY:
   -d           root path for the download directory
-OVERWRITE:
   -o           overwrite existing downloaded file
-HELP:
   -h|-help     print help information and exit
-verbose:
   -v           print verbose output
-EXAMPLES:
-  $ urltofile -u http://www.bbc.co.uk/news/world
-  $ urltofile -o -d /code/download -u http://www.bbc.co.uk/news/world
+
 
 ### Example:
 
