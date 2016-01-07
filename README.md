@@ -1,6 +1,6 @@
 # urlToFile
 
-A basic command line utility that fetches a url and saves it contents to a file and creates a JSON download information file. 
+A basic command line utility that fetches a url and saves it contents to a file and creates a JSON download information file.
 
 
 ### Download:
@@ -21,7 +21,7 @@ A basic command line utility that fetches a url and saves it contents to a file 
 ### Example:
 
 	$ urltofile -u http://www.bbc.co.uk/news/world
-	
+
 	urlToFile v0.2 https://github.com/ldenken
 
 	    URL : http://www.bbc.co.uk/news/world
@@ -32,12 +32,12 @@ A basic command line utility that fetches a url and saves it contents to a file 
 
 
 ### Information File:
-The *.info file contains a JSON structure containing information about the downloaded file, http headers with internal/external links if the "Content-Type" = "text/html". 
+The *.info file contains a JSON structure containing information about the downloaded file, http headers with internal/external links if the "Content-Type" = "text/html".
 
-    File 			map[string]string 	`json:"File"` 
-    Request 		map[string]string 	`json:"Request"` 
+    File 			map[string]string 	`json:"File"`
+    Request 		map[string]string 	`json:"Request"`
     Header 			map[string]string 	`json:"Header"`
-    Response 		map[string]string 	`json:"Response"` 
+    Response 		map[string]string 	`json:"Response"`
     LinksInternal	[][]string 			`json:"LinksInternal"`
     LinksExternal	[][]string 			`json:"LinksExternal"`
 
@@ -58,7 +58,7 @@ File information
 
 Request headers
 
-	$ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info 
+	$ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 	{
 	  "Request": {
 	  	...
