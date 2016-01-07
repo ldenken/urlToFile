@@ -1,15 +1,3 @@
-/*
-
-TODO
-
-1.
-2.
-
-$ clear; go install problemchild.local/gogs/urltofile; urltofile
-
-
-*/
-
 package main
 
 import (
@@ -285,7 +273,7 @@ func main() {
 		//fmt.Println("\nhref type:", reflect.TypeOf(href).Kind(), "len:", len(href), "\n", href)
 		// href type: slice len: 62
 
-		for _, v := range href { 
+		for _, v := range href {
 			v = strings.Trim(v, " \t\n\r")
 			tmpslice := strings.SplitAfterN(v, ">", 2)
 			tmpslice[0] = regexp.MustCompile("(?i)<a href=(\"|')").ReplaceAllString(tmpslice[0], "")
@@ -313,12 +301,12 @@ func main() {
 		}
 		if verbose {
 			fmt.Println("\nLinksInternal type:", reflect.TypeOf(LinksInternal).Kind(), "len:", len(LinksInternal))
-			for i, v := range LinksInternal { 
+			for i, v := range LinksInternal {
 				fmt.Println(i, v[0], v[1])
 			}
 
 			fmt.Println("\nLinksExternal type:", reflect.TypeOf(LinksExternal).Kind(), "len:", len(LinksExternal))
-			for i, v := range LinksExternal { 
+			for i, v := range LinksExternal {
 				fmt.Println(i, v[0], v[1])
 			}
 		}
@@ -335,10 +323,10 @@ func main() {
 
 	// ----- build json Information struct ---------------------------------
 	type Information struct {
-	    File 			map[string]string 	`json:"File"` 
-	    Request 		map[string]string 	`json:"Request"` 
+	    File 			map[string]string 	`json:"File"`
+	    Request 		map[string]string 	`json:"Request"`
 	    Header 			map[string]string 	`json:"Header"`
-	    Response 		map[string]string 	`json:"Response"` 
+	    Response 		map[string]string 	`json:"Response"`
 	    LinksInternal	[][]string 			`json:"LinksInternal"`
 	    LinksExternal	[][]string 			`json:"LinksExternal"`
 	}
@@ -443,44 +431,44 @@ func getUrl(url string) (map[string]string, map[string]string, map[string]string
 	Response := make(map[string]string)
 	//fmt.Println("\nresp type:", reflect.TypeOf(resp).Kind(), "->\n", resp)
 	//fmt.Println("\n*resp type:", reflect.TypeOf(*resp).Kind(), "->\n", *resp)
-	
-	// fmt.Println("resp.Status type:", reflect.TypeOf(resp.Status).Kind(), resp.Status) 
+
+	// fmt.Println("resp.Status type:", reflect.TypeOf(resp.Status).Kind(), resp.Status)
 	// resp.Status type: string 200 OK
 	Response["Status"] = resp.Status
 
-	// fmt.Println("resp.StatusCode type:", reflect.TypeOf(resp.StatusCode).Kind(), resp.StatusCode) 
+	// fmt.Println("resp.StatusCode type:", reflect.TypeOf(resp.StatusCode).Kind(), resp.StatusCode)
 	// resp.StatusCode type: int 200
 	Response["StatusCode"] = strconv.Itoa(resp.StatusCode)
 
-	// fmt.Println("resp.Proto type:", reflect.TypeOf(resp.Proto).Kind(), resp.Proto) 
+	// fmt.Println("resp.Proto type:", reflect.TypeOf(resp.Proto).Kind(), resp.Proto)
 	// resp.Proto type: string HTTP/1.1
 	Response["Proto"] = resp.Proto
 
-	// fmt.Println("resp.ProtoMajor type:", reflect.TypeOf(resp.ProtoMajor).Kind(), resp.ProtoMajor) 
+	// fmt.Println("resp.ProtoMajor type:", reflect.TypeOf(resp.ProtoMajor).Kind(), resp.ProtoMajor)
 	// resp.ProtoMajor type: int 1
 	Response["ProtoMajor"] = strconv.Itoa(resp.ProtoMajor)
 
-	// fmt.Println("resp.ProtoMinor type:", reflect.TypeOf(resp.ProtoMinor).Kind(), resp.ProtoMinor) 
-	// resp.ProtoMinor type: int 1 
+	// fmt.Println("resp.ProtoMinor type:", reflect.TypeOf(resp.ProtoMinor).Kind(), resp.ProtoMinor)
+	// resp.ProtoMinor type: int 1
 	Response["ProtoMinor"] = strconv.Itoa(resp.ProtoMinor)
 
-	//fmt.Println("resp.ContentLength type:", reflect.TypeOf(resp.ContentLength).Kind(), resp.ContentLength) 
+	//fmt.Println("resp.ContentLength type:", reflect.TypeOf(resp.ContentLength).Kind(), resp.ContentLength)
 	// resp.ContentLength type: int64 12150
 	Response["ContentLength"] = strconv.FormatInt(resp.ContentLength, 10)
 
-	// fmt.Println("resp.TransferEncoding type:", reflect.TypeOf(resp.TransferEncoding).Kind(), resp.TransferEncoding) 
+	// fmt.Println("resp.TransferEncoding type:", reflect.TypeOf(resp.TransferEncoding).Kind(), resp.TransferEncoding)
 	// resp.TransferEncoding type: slice []
 	//Response["transferencoding"] = resp.TransferEncoding
 
-	// fmt.Println("resp.Close type:", reflect.TypeOf(resp.Close).Kind(), resp.Close) 
+	// fmt.Println("resp.Close type:", reflect.TypeOf(resp.Close).Kind(), resp.Close)
 	// resp.Close type: bool false
 	//Response["close"] = strconv.FormatBool(resp.Close)
 
-	// fmt.Println("resp.Trailer type:", reflect.TypeOf(resp.Trailer).Kind(), resp.Trailer) 
+	// fmt.Println("resp.Trailer type:", reflect.TypeOf(resp.Trailer).Kind(), resp.Trailer)
 	// resp.Trailer type: map map[]
 	//Response["trailer"] = resp.Trailer
 
-	// fmt.Println("resp.TLS type:", reflect.TypeOf(resp.TLS).Kind(), resp.TLS) 
+	// fmt.Println("resp.TLS type:", reflect.TypeOf(resp.TLS).Kind(), resp.TLS)
 	// resp.TLS type: ptr <nil>
 	//Response["tls"] = resp.TLS
 
@@ -621,7 +609,7 @@ func wirteFile(filename string, content []byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Sync()	
+	f.Sync()
 }
 
 
