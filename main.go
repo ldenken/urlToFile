@@ -2,8 +2,8 @@
 
 TODO
 
-1.	
-2. 	
+1.
+2.
 
 $ clear; go install problemchild.local/gogs/urltofile; urltofile
 
@@ -34,13 +34,13 @@ const (
 	// VERSION is the binary version.
 	VERSION = "v0.0.2"
 	// BANNER is what is printed for help/info output.
-	BANNER = `            _ _____    ______ _ _      
-           | |_   _|   |  ___(_) |     
- _   _ _ __| | | | ___ | |_   _| | ___ 
+	BANNER = `            _ _____    ______ _ _
+           | |_   _|   |  ___(_) |
+ _   _ _ __| | | | ___ | |_   _| | ___
 | | | | '__| | | |/ _ \|  _| | | |/ _ \
 | |_| | |  | | | | (_) | |   | | |  __/
  \__,_|_|  |_| \_/\___/\_|   |_|_|\___|
-                                       
+
 Download a URL and save the contents to a file
 urlToFile ` + VERSION + ` https://github.com/ldenken`
 
@@ -50,7 +50,7 @@ Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] {overwrite}
 URL:
   -u | -url      url to download
 DIRECTORY:
-  -d             root path for the download directory 
+  -d             root path for the download directory
 OVERWRITE:
   -o             overwrite any existing downloaded file
 HELP:
@@ -213,29 +213,29 @@ func printKeyValue(key string, value string, column int) {
 		}
 	}
 	var txt string = buffer.String() + key
-	fmt.Println(txt, ":", value)	
+	fmt.Println(txt, ":", value)
 }
 
 func existsTFE(path string) (bool, error) {
     _, err := os.Stat(path)
-    if err == nil { 
-    	return true, nil 
+    if err == nil {
+    	return true, nil
     }
-    if os.IsNotExist(err) { 
-    	return false, nil 
+    if os.IsNotExist(err) {
+    	return false, nil
     }
     return true, err
 }
 
 func existsTF(path string) (bool) {
     _, err := os.Stat(path)
-    if err == nil { 
+    if err == nil {
     	return true
     }
-    if os.IsNotExist(err) { 
+    if os.IsNotExist(err) {
     	return false
     }
-    return true	
+    return true
 }
 
 func createDirectory(directory string) {
