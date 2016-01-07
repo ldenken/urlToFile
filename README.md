@@ -1,10 +1,14 @@
 # urlToFile
 
-A basic command line utility that fetches a url and saves the contents to a file.
+A basic command line utility that fetches a url and saves it contents to a file. 
 
-To download and install this package run:
 
-go get github.com/dyatlov/go-opengraph/opengraph
+A JSON formated information file is created .
+
+
+### Download:
+
+	$ go get github.com/ldenken/urlToFile
 
 
 ### Usage:
@@ -34,6 +38,8 @@ The *.info file contains a JSON structure containing information about the downl
 ### [./jq](http://stedolan.github.com/jq)
 jq is a lightweight and flexible command-line JSON processor and can be used to extract information from the *.info file(s).
 
+File information
+
 	$ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 	{
 	  "File": {
@@ -42,6 +48,8 @@ jq is a lightweight and flexible command-line JSON processor and can be used to 
 	    "filename": "download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html"
 	  }
 	}
+
+Request headers
 
 	$ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info 
 	{
@@ -54,7 +62,10 @@ jq is a lightweight and flexible command-line JSON processor and can be used to 
 	  }
 	}
 
-	$ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info{
+Download headers
+
+	$ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+	{
 	  "Header": {
 	  	...
 	    "Connection": "keep-alive",
@@ -65,6 +76,8 @@ jq is a lightweight and flexible command-line JSON processor and can be used to 
 	  }
 	}
 
+Response headers
+
 	$ jq '.| {Response}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 	{
 	  "Response": {
@@ -74,6 +87,8 @@ jq is a lightweight and flexible command-line JSON processor and can be used to 
 	    ...
 	  }
 	}
+
+Internal links and titles (single file)
 
 	$ jq '.LinksInternal[]' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 	...
@@ -87,22 +102,16 @@ jq is a lightweight and flexible command-line JSON processor and can be used to 
 	]
 	...
 
+Internal links (multiple files)
 
-
-
-
-$ cat /data/download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info | jq '.LinksExternal[][0]'
-
-
-
-$ for url in $(cat url.lst); do echo $url; urltofile -d /data/download -u $url; done
-
-$ find /data/download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul cat |jq '.LinksInternal[]' |sed 's/"//g' >tmp.txt 
-
-|sort -u >> go_scrape/urls.txt
-
-
-$ cat tmp.txt |sed 's/[ |,]//g' |grep -E '\-[0-9]{8}' |sort -u >url.lst
+	$ find download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul cat |jq '.LinksInternal[][0]' |sed 's/"//g' |sort -u
+	...
+	http://www.bbc.co.uk/news/world/africa
+	http://www.bbc.co.uk/news/world-africa-35249860
+	http://www.bbc.co.uk/news/world/asia
+	http://www.bbc.co.uk/news/world-asia-35249620
+	http://www.bbc.co.uk/news/world-asia-35254155
+	...
 
 
 ## License
