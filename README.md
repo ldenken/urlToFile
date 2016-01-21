@@ -10,7 +10,7 @@ A basic command line utility that fetches a url and saves it contents to a file 
 
 ### Usage:
 ```sh
-$ urlToFile [-u|-url] {url} [-d] {directory} [-o] [-h|-help] [-v]
+$ urltofile [-u|-url] {url} [-d] {directory} [-o] [-h|-help] [-v]
   -u|-url      url to download
   -d           root path for the download directory
   -o           overwrite existing downloaded file
