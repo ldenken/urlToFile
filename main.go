@@ -37,24 +37,26 @@ urlToFile ` + VERSION + ` https://github.com/ldenken`
 
 	HELP = BANNER + `
 
-Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
-URL:
+Usage:
+  urlToFile [-u|-url] {url} [-d] {directory} [-o] [-h|-help] [-v]
+Url:
   -u|-url      url to download
-DIRECTORY:
+Directory:
   -d           root path for the download directory
-OVERWRITE:
+Overwrite:
   -o           overwrite existing downloaded file
-HELP:
+Help:
   -h|-help     print help information and exit
-verbose:
+Verbose:
   -v           print verbose output
-EXAMPLES:
+Examples:
   $ urltofile -u http://www.bbc.co.uk/news/world
-  $ urltofile -o -d /code/download -u http://www.bbc.co.uk/news/world
+  $ urltofile -u http://www.bbc.co.uk/news/world -d /data/download -o
 
 `
-	USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0"
-	//USERAGENT = "Golang Bot " + VERSION
+	//USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0"
+	//USERAGENT = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/45.0.2454.101 Chrome/45.0.2454.101 Safari/537.36"
+	USERAGENT = "urlToFile " + VERSION
 
 )
 
@@ -103,7 +105,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("\nurlToFile", VERSION, "https://github.com/ldenken\n")
+	fmt.Println("\nurltofile", VERSION, "https://github.com/ldenken/urlToFile\n")
 
 	if url != "" {
 		reg, err := regexp.Compile("^(ftp|http|https)://(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(/|/([\\w#!:.?+=&@!-/]))?")

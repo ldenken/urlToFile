@@ -10,7 +10,7 @@ A basic command line utility that fetches a url and saves it contents to a file 
 
 ### Usage:
 ```sh
-Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
+$ urlToFile [-u|-url] {url} [-d] {directory} [-o] [-h|-help] [-v]
   -u|-url      url to download
   -d           root path for the download directory
   -o           overwrite existing downloaded file
@@ -23,7 +23,7 @@ Usage: urlToFile [-u|-url] {url} [-d] {directory} [-o] [-v]
 ```sh
 $ urltofile -u http://www.bbc.co.uk/news/world
 
-urlToFile v0.2 https://github.com/ldenken
+urlToFile v0.2 https://github.com/ldenken/urlToFile
 
     URL : http://www.bbc.co.uk/news/world
 created : download
