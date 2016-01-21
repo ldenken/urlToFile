@@ -58,68 +58,75 @@ $ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 ```
 
 Request headers
-
-	$ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
-	{
-	  "Request": {
-	  	...
-	    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0",
-	    "URL": "http://www.bbc.co.uk/news/world",
-	    "RequestURI": "",
-	    ...
-	  }
-	}
+```sh
+$ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+{
+  "Request": {
+  	...
+    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "URL": "http://www.bbc.co.uk/news/world",
+    "RequestURI": "",
+    ...
+  }
+}
+```
 
 Download headers
-
-	$ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
-	{
-	  "Header": {
-	  	...
-	    "Connection": "keep-alive",
-	    "Content-Language": "en-GB",
-	    "Content-Type": "text/html; charset=utf-8",
-	    "Date": "Thu, 07 Jan 2016 16:54:00 GMT",
-	    ...
-	  }
-	}
+```sh
+$ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+{
+  "Header": {
+  	...
+    "Connection": "keep-alive",
+    "Content-Language": "en-GB",
+    "Content-Type": "text/html; charset=utf-8",
+    "Date": "Thu, 07 Jan 2016 16:54:00 GMT",
+    ...
+  }
+}
+```
 
 Response headers
-
-	$ jq '.| {Response}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
-	{
-	  "Response": {
-	  	...
-	    "StatusCode": "200",
-	    "Status": "200 OK",
-	    ...
-	  }
-	}
+```sh
+$ jq '.| {Response}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+{
+  "Response": {
+  	...
+    "StatusCode": "200",
+    "Status": "200 OK",
+    ...
+  }
+}
+```
 
 Internal links and titles (single file)
-
-	$ jq '.LinksInternal[]' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
-	...
-	[
-	  "http://www.bbc.co.uk/news/",
-	  "News"
-	]
-	[
-	  "http://www.bbc.co.uk/sport/",
-	  "Sport"
-	]
-	...
+```sh
+$ jq '.LinksInternal[]' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+...
+[
+  "http://www.bbc.co.uk/news/",
+  "News"
+]
+[
+  "http://www.bbc.co.uk/sport/",
+  "Sport"
+]
+...
+```
 
 Internal links (multiple files)
+```sh
+$ find download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul \
+cat |jq '.LinksInternal[][0]' |sed 's/"//g' |sort -u
+...
+http://www.bbc.co.uk/news/world/africa
+http://www.bbc.co.uk/news/world-africa-35249860
+http://www.bbc.co.uk/news/world/asia
+http://www.bbc.co.uk/news/world-asia-35249620
+...
+```
 
-	$ find download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul \
-	cat |jq '.LinksInternal[][0]' |sed 's/"//g' |sort -u
-	...
-	http://www.bbc.co.uk/news/world/africa
-	http://www.bbc.co.uk/news/world-africa-35249860
-	http://www.bbc.co.uk/news/world/asia
-	http://www.bbc.co.uk/news/world-asia-35249620
-	...
+## TODO
 
 
 ## License
