@@ -35,15 +35,16 @@ created : download/www.bbc.co.uk
 ### Information File:
 The *.info file contains a JSON structure containing information about the downloaded file, http headers with internal/external links if the "Content-Type" = "text/html".
 
-    File 			map[string]string 	`json:"File"`
-    Request 		map[string]string 	`json:"Request"`
-    Header 			map[string]string 	`json:"Header"`
-    Response 		map[string]string 	`json:"Response"`
-    LinksInternal	[][]string 			`json:"LinksInternal"`
-    LinksExternal	[][]string 			`json:"LinksExternal"`
+``` go
+File 			map[string]string 	`json:"File"`
+Request 		map[string]string 	`json:"Request"`
+Header 			map[string]string 	`json:"Header"`
+Response 		map[string]string 	`json:"Response"`
+LinksInternal	[][]string 			`json:"LinksInternal"`
+LinksExternal	[][]string 			`json:"LinksExternal"`
+```
 
-
-## ./jq
+### ./jq:
 [jq](http://stedolan.github.com/jq) is a lightweight and flexible command-line JSON processor and can be used to extract information from the *.info file(s).
 
 ### File information
@@ -58,7 +59,7 @@ $ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 }
 ```
 
-### Request headers
+#### Request headers
 ```sh
 $ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 {
@@ -72,7 +73,7 @@ $ jq '.| {Request}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 }
 ```
 
-### Download headers
+#### Download headers
 ```sh
 $ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 {
@@ -87,7 +88,7 @@ $ jq '.| {Header}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 }
 ```
 
-### Response headers
+#### Response headers
 ```sh
 $ jq '.| {Response}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 {
@@ -100,7 +101,7 @@ $ jq '.| {Response}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.inf
 }
 ```
 
-### Internal links and titles (single file)
+#### Internal links and titles (single file)
 ```sh
 $ jq '.LinksInternal[]' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 ...
@@ -115,7 +116,7 @@ $ jq '.LinksInternal[]' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.
 ...
 ```
 
-### Internal links (multiple files)
+#### Internal links (multiple files)
 ```sh
 $ find download/www.bbc.co.uk/ -type f -name '*.info' -print0 |xargs --nul \
 cat |jq '.LinksInternal[][0]' |sed 's/"//g' |sort -u
@@ -127,8 +128,8 @@ http://www.bbc.co.uk/news/world-asia-35249620
 ...
 ```
 
-## TODO
+### TODO
 
 
-## License
+### License
 License: [GNU Lesser General Public License Version 3, 29 June 2007](http://fsf.org/)
