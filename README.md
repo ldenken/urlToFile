@@ -47,14 +47,14 @@ The *.info file contains a JSON structure containing information about the downl
 
 File information
 ```sh
-	$ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
-	{
-	  "File": {
-	    "url": "http://www.bbc.co.uk/news/world",
-	    "timestamp": "2016-01-07T16:54:00Z",
-	    "filename": "download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html"
-	  }
-	}
+$ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
+{
+  "File": {
+    "url": "http://www.bbc.co.uk/news/world",
+    "timestamp": "2016-01-07T16:54:00Z",
+    "filename": "download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html"
+  }
+}
 ```
 
 Request headers
