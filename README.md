@@ -46,7 +46,7 @@ The *.info file contains a JSON structure containing information about the downl
 [jq](http://stedolan.github.com/jq) is a lightweight and flexible command-line JSON processor and can be used to extract information from the *.info file(s).
 
 File information
-
+```sh
 	$ jq '.| {File}' download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.info
 	{
 	  "File": {
@@ -55,6 +55,7 @@ File information
 	    "filename": "download/www.bbc.co.uk/11f2e26b746b0b07607feb09f10c1431.html"
 	  }
 	}
+```
 
 Request headers
 

@@ -115,6 +115,9 @@ func main() {
 		} else {
 	        log.Fatal("url failed regexp! ", url)
 		}
+	} else {
+		fmt.Println(HELP)
+		return
 	}
 
 	if directory != "" {
@@ -125,11 +128,6 @@ func main() {
 		}
 		//printKeyValue("Base", directory, column)
 	}
-
-	//if overwrite {
-	//	printKeyValue("Write", "true", column)
-	//}
-
 
 
 	// ----- parse valid url into its component parts --------------------------
@@ -144,7 +142,6 @@ func main() {
 	host := []string(strings.Split(url_slice[1], "/"))[0]
 	//printKeyValue("host", host, column)
 
-	//directoryHost := directory + "/" + host
 	if existsTF(directory + "/" + host) == false {
 		createDirectory(directory + "/" + host)
 		printKeyValue("created", directory + "/" + host, column)
